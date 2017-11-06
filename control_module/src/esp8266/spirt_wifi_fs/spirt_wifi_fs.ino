@@ -6,7 +6,7 @@
 #include <WiFiManager.h>
 #include <DNSServer.h>
 #include <HashMap.h>
-
+#include <FS.h>
 #define MAX_MSG_LEN         100
 
 //define the max size of the hashtable
@@ -15,15 +15,20 @@ const byte HASH_SIZE = 8;
 HashType<String,float> hashRawArray[HASH_SIZE]; 
 //handles the storage [search,retrieve,insert]
 HashMap<String, float> hashMap = HashMap<String, float>( hashRawArray , HASH_SIZE );
+//holds the current upload
+File fsUploadFile;
 
-String statusDesc = "---";
+String statusDesc = "Testing status";
 String inputString = "";
+
+const char* www_username = "admin";
+const char* www_password = "esp8266";
 //**********************************************************
 
 // Access point name for WiFi manager
 const char *apName = "Green Snake";
 
-const char* serverIndex = "<form method='POST' action='/update' enctype='multipart/form-data'><input type='file' name='update'><input type='submit' value='Update'></form>";
+const char* serverIndex = "<form method='POST' action='/update' enctype='multipart/form-data'><input type='file' name='update'><br><input type='submit' value='Update'></form>";
 
 ESP8266WebServer server(80);
 
@@ -91,90 +96,147 @@ int win1251_to_utf8(const char* text, char* utext)
   return 1;
 }
 
-void handleRoot() {
-  const String s = PSTR("<!DOCTYPE HTML>\r\n<html lang=\"ru\"><head><title>Green Snake</title>"
-  "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />"
-  "<script src=\"autorefresh.js\"></script>"
-  "</head><body bgcolor=\"#778899\" onload = \"dR()\">"
-"<h1 style=\"text-align: center; color:#7cfc00\">Зеленый змей</h1>"
-" <p>&nbsp;</p>"
-"<p style=\"text-align:center; color:#ffA500; font-weight:bold\"><span id = \"status\"></span></p>"
-"<table align=\"center\" style=\"text-align:left; font-weight:bold\" width=\"500px\">"
-" <tr>"
-"        <td>Температура в кубе</td>"
-"        <td><span id = \"tkub\"></span> &deg;С</td>"
-"    </tr>"
-"    <tr>"
-"        <td>Температура колонны низ</td>"
-"        <td><span id = \"tkolonan\"></span> &deg;С</td>"
-"    </tr>" 
-"   <tr>"
-"        <td>Температура колонны верх</td>"
-"        <td><span id = \"tkolonav\"></span> &deg;С</td>"
-"    </tr>"
-"    <tr>"
-"        <td>Температура охлаждающей жидкости</td>"
-"        <td><span id = \"tcoolant\"></span> &deg;С</td>"
-"    </tr>"
-"    <tr>"
-"        <td>Расход охлаждающей жидкости</td>"
-"        <td><span id = \"fcoolant\"></span> л/мин</td>"
-"    </tr>"
-"    <tr>"
-"       <td>Давление в кубе</td>"
-"        <td><span id = \"pkub\"></span> мм в.ст.</td>"
-"    </tr>"
-"    <tr>"
-"        <td>Мощность подводима к кубу</td>"
-"        <td><span id = \"power\"></span> кВт</td>"
-"    </tr>"
-"    <tr>"
-"        <td>Превышение предельной концентрации паров спирта</td>"
-        "<td><span id = \"alcopdk\"></span></td>"
-    "</tr>"
-"</table>"
-"<br> "
-"<center>Web управление и контроль. <br> Разработчик Левичев Дмитрий (C)<br> <a href=\"/updform\">Обновление прошивки WiFi модуля</a> </center>"
-"</body></html>");
- 
-  server.send(200, "text/html", s);
+//format bytes
+String formatBytes(size_t bytes){
+  if (bytes < 1024){
+    return String(bytes)+"B";
+  } else if(bytes < (1024 * 1024)){
+    return String(bytes/1024.0)+"KB";
+  } else if(bytes < (1024 * 1024 * 1024)){
+    return String(bytes/1024.0/1024.0)+"MB";
+  } else {
+    return String(bytes/1024.0/1024.0/1024.0)+"GB";
+  }
 }
 
-void handleScript(){
-  const String s = PSTR(
-  "var o=new XMLHttpRequest();\n"
-  " function dR() {\n"
-  "  o.open(\"GET\",\"data.dat?r=\"+Math.random(),1);\n"
-  "  o.onload=function(){\n"
-  "   console.dir(this.responseText);\n"
-  "   var a=this.responseText.replace(/\\s*[\\r\\n=]+\\s*/g, \"=\").replace(/^\\s+/,\"\").replace(/\\s+$/,\"\").match( /([^=]+)/g);\n"
-  "   for (var i=0, len=a.length; i< len; i+=2) try { document.getElementById(a[i]).innerText=a[i+1]; } catch(e) {};\n"
-  "   setTimeout(\"dR()\", 1000);\n"
-  " } \n"
-  " o.send();\n"
-  "}\n");
-  server.send(200, "text/html", s);  
+String getContentType(String filename){
+  if(server.hasArg("download")) return "application/octet-stream";
+  else if(filename.endsWith(".htm")) return "text/html";
+  else if(filename.endsWith(".html")) return "text/html";
+  else if(filename.endsWith(".css")) return "text/css";
+  else if(filename.endsWith(".js")) return "application/javascript";
+  else if(filename.endsWith(".png")) return "image/png";
+  else if(filename.endsWith(".gif")) return "image/gif";
+  else if(filename.endsWith(".jpg")) return "image/jpeg";
+  else if(filename.endsWith(".ico")) return "image/x-icon";
+  else if(filename.endsWith(".xml")) return "text/xml";
+  else if(filename.endsWith(".pdf")) return "application/x-pdf";
+  else if(filename.endsWith(".zip")) return "application/x-zip";
+  else if(filename.endsWith(".gz")) return "application/x-gzip";
+  return "text/plain";
+}
+
+bool handleFileRead(String path){
+  //DBG_OUTPUT_PORT.println("handleFileRead: " + path);
+  if(path.endsWith("/")) path += "index.htm";
+  String contentType = getContentType(path);
+  String pathWithGz = path + ".gz";
+  if(SPIFFS.exists(pathWithGz) || SPIFFS.exists(path)){
+    if(SPIFFS.exists(pathWithGz))
+      path += ".gz";
+    File file = SPIFFS.open(path, "r");
+    size_t sent = server.streamFile(file, contentType);
+    file.close();
+    return true;
+  }
+  return false;
+}
+
+void handleFileUpload(){
+  if(server.uri() != "/edit") return;
+  HTTPUpload& upload = server.upload();
+  if(upload.status == UPLOAD_FILE_START){
+    String filename = upload.filename;
+    if(!filename.startsWith("/")) filename = "/"+filename;
+    //DBG_OUTPUT_PORT.print("handleFileUpload Name: "); DBG_OUTPUT_PORT.println(filename);
+    fsUploadFile = SPIFFS.open(filename, "w");
+    filename = String();
+  } else if(upload.status == UPLOAD_FILE_WRITE){
+    //DBG_OUTPUT_PORT.print("handleFileUpload Data: "); DBG_OUTPUT_PORT.println(upload.currentSize);
+    if(fsUploadFile)
+      fsUploadFile.write(upload.buf, upload.currentSize);
+  } else if(upload.status == UPLOAD_FILE_END){
+    if(fsUploadFile)
+      fsUploadFile.close();
+    //DBG_OUTPUT_PORT.print("handleFileUpload Size: "); DBG_OUTPUT_PORT.println(upload.totalSize);
+  }
+}
+
+void handleFileDelete(){
+  if(server.args() == 0) return server.send(500, "text/plain", "BAD ARGS");
+  String path = server.arg(0);
+  //DBG_OUTPUT_PORT.println("handleFileDelete: " + path);
+  if(path == "/")
+    return server.send(500, "text/plain", "BAD PATH");
+  if(!SPIFFS.exists(path))
+    return server.send(404, "text/plain", "FileNotFound");
+  SPIFFS.remove(path);
+  server.send(200, "text/plain", "");
+  path = String();
+}
+
+void handleFileCreate(){
+  if(server.args() == 0)
+    return server.send(500, "text/plain", "BAD ARGS");
+  String path = server.arg(0);
+  //DBG_OUTPUT_PORT.println("handleFileCreate: " + path);
+  if(path == "/")
+    return server.send(500, "text/plain", "BAD PATH");
+  if(SPIFFS.exists(path))
+    return server.send(500, "text/plain", "FILE EXISTS");
+  File file = SPIFFS.open(path, "w");
+  if(file)
+    file.close();
+  else
+    return server.send(500, "text/plain", "CREATE FAILED");
+  server.send(200, "text/plain", "");
+  path = String();
+}
+
+void handleFileList() {
+  if(!server.hasArg("dir")) {server.send(500, "text/plain", "BAD ARGS"); return;}
+  
+  String path = server.arg("dir");
+  //DBG_OUTPUT_PORT.println("handleFileList: " + path);
+  Dir dir = SPIFFS.openDir(path);
+  path = String();
+
+  String output = "[";
+  while(dir.next()){
+    File entry = dir.openFile("r");
+    if (output != "[") output += ',';
+    bool isDir = false;
+    output += "{\"type\":\"";
+    output += (isDir)?"dir":"file";
+    output += "\",\"name\":\"";
+    output += String(entry.name()).substring(1);
+    output += "\"}";
+    entry.close();
+  }
+  
+  output += "]";
+  server.send(200, "text/json", output);
 }
 
 void handleData(){
-  String s = "status = ";
+  String s = "{ \"status\":\"";
   s += statusDesc;
-  s += "\n";
+  s += "\"";
   
   for (char i = 0; i < HASH_SIZE; i++){
+    s += "\n,\"";
     s += hashMap[i].getHash();
-    s += " = ";
+    s += "\":";
     s += hashMap[i].getValue();
-    s += "\n";
+    //s += "\"";
   }
+  s += "}";
   server.send(200, "text/html", s);
 }
 
 void HTTP_init(){
-   server.on("/", handleRoot);
-   server.on("/index.html", handleRoot);
+
    server.on( "/data.dat", handleData );
-   server.on("/autorefresh.js", handleScript);
    server.on("/description.xml", HTTP_GET, [](){
       SSDP.schema(server.client());
     });         
@@ -212,6 +274,31 @@ void HTTP_init(){
        }
        yield();
     });
+    //list directory
+    server.on("/list", HTTP_GET, handleFileList);
+    //load editor
+    server.on("/edit", HTTP_GET, [](){
+      /*if(!server.authenticate(www_username, www_password)){
+        Serial.println("Auth request...");
+        return server.requestAuthentication();
+      }*/
+      if(!handleFileRead("/edit.htm")) server.send(404, "text/plain", "FileNotFound");
+    });
+    //create file
+    server.on("/edit", HTTP_PUT, handleFileCreate);
+    //delete file
+    server.on("/edit", HTTP_DELETE, handleFileDelete);
+    //first callback is called after the request has ended with all parsed arguments
+    //second callback handles file uploads at that location
+    server.on("/edit", HTTP_POST, [](){ server.send(200, "text/plain", ""); }, handleFileUpload);
+
+    //called when the url is not defined here
+    //use it to load content from SPIFFS
+    server.onNotFound([](){
+      if(!handleFileRead(server.uri()))
+        server.send(404, "text/plain", "FileNotFound");
+    });
+
     if (WiFi.status() == WL_CONNECTED){
       server.begin(); 
     }        
@@ -221,10 +308,10 @@ void initSSDP(){
     //Serial.printf("Starting SSDP...\n");
     SSDP.setSchemaURL("description.xml");
     SSDP.setHTTPPort(80);
-    SSDP.setName("ESP-01 Green Snake");
+    SSDP.setName("Green Snake");
     SSDP.setSerialNumber("0000000000001");
     SSDP.setURL("index.html");
-    SSDP.setModelName("ESP-01 Green Snake");
+    SSDP.setModelName("Green Snake");
     SSDP.setModelNumber("000000000002");
    // SSDP.setModelURL("http://esp8266-arduinoide.ru/wifimanager/");
     SSDP.setManufacturer("Levichev Dmitry");
@@ -253,6 +340,7 @@ void WiFiEvent(WiFiEvent_t event) {
 
 void setup() {
         delay(500);
+        SPIFFS.begin();
         statusDesc.reserve(MAX_MSG_LEN);
         inputString.reserve(MAX_MSG_LEN);
         Serial.begin(115200);
@@ -264,19 +352,20 @@ void setup() {
         if(!wifiManager.autoConnect(apName)) {
           delay(500);
         } 
+        
         HTTP_init();
         WiFi.onEvent(WiFiEvent);
         initSSDP(); 
         //-----------------------
         // init array
-        hashMap[0]("tkub",0);
-        hashMap[1]("tkolonan",0);
-        hashMap[2]("tkolonav",0);
-        hashMap[3]("tcoolant",0);
-        hashMap[4]("fcoolant",0);
-        hashMap[5]("pkub",0);
-        hashMap[6]("power",0);
-        hashMap[7]("alcopdk",0);
+        hashMap[0]("tkub", 0.0);
+        hashMap[1]("tkolonan", 10.0);
+        hashMap[2]("tkolonav", 33.9);
+        hashMap[3]("tcoolant", 45.7);
+        hashMap[4]("fcoolant", 2.6);
+        hashMap[5]("pkub", 23.8);
+        hashMap[6]("power", 1.5);
+        hashMap[7]("alcopdk", 1.0);
         Serial.print("IP:");
         Serial.println(WiFi.localIP());         
 }
