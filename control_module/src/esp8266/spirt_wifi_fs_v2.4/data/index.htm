@@ -1,0 +1,148 @@
+<!DOCTYPE HTML>
+<html lang="ru">
+	<head><title>Green Snake</title>
+   		<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+   		<link href="bootstrap.min.css" rel="stylesheet">
+   		<style type="text/css">
+			.well_l {
+				//background: rgb(200, 200, 200); 
+				text-align: center;
+				align-content: right;
+			}
+			.well_r {
+				//background: rgb(200, 200, 200); 
+				text-align: center;
+				align-content: left;
+			}
+			
+			body{
+				background-color: rgb(213, 213, 213);
+			}
+			img {
+  				vertical-align: top;
+			}
+			.gauge {
+        		display: block;
+        		float: right;
+        		align-content: center;
+    		}
+    		.icons_r {
+    			width: 32px;
+        		height: 32px;
+        		float:left;
+    		}
+    		.icons_l {
+    			width: 32px;
+        		height: 32px;
+        		float:right;
+    		}
+    		#press_g {
+        		width: 80%;
+        		height: 80%;
+    		}
+    		#power_g {
+        		width: 80%;
+        		height: 80%;
+    		}
+    		#water_g {
+    			width: 80%;
+        		height: 80%;
+    		}
+    		#dev_img {
+    			width:200;
+    			height:500;
+    		}
+		</style>
+		<!--<script src="raphael-2.1.4.min.js"></script>-->
+   	<script src="justgage.min.js"></script>
+   	<script src="chart.min.js"></script>
+   	<script src="loader.js"></script>
+	</head>
+<body onload = "dR()">
+<div class="container" id="wraper">
+	<div class="row" id="logo">
+  		<h1 style="text-align: center;">Зеленый змей</h1>
+	</div>
+	<div class="row" id="content">
+  		<div class="col-md-12">
+  			<div class="row"> <!-- status -->
+  				<div class="col-md-12"><div style="text-align: center;"> Статус системы: <span id = "status"></span></div></div>
+  			</div>
+  			<div class="row"> <!-- content -->
+  				<div class="col-md-6">
+  					<div class="row"> <!-- Device-->
+  						<div class="col-md-4">
+  							<div class="row">  <!-- Left dashboard-->
+  								<div class="col-md-12">
+  									<div class="well_l" style="height: 40px">
+  									 	<span id = "tcoolant"></span> &deg;С
+  									 	<img class="icons_l" src="thermometer.svg">
+  									</div> 
+  								</div>
+  								<div class="col-md-12">
+  									 <div id="water_g" class="gauge"></div> 
+  								</div>
+  								<div class="col-md-12">
+  									<div style="height: 160px"> &nbsp; </div>
+  								</div>
+  								
+  								<div class="col-md-12">
+  									 <div id="press_g" class="gauge"></div> 
+  								</div>
+  								<div class="col-md-12">
+  									 <div id="power_g" class="gauge"></div> 
+  								</div>
+  							</div>
+  							
+  						</div>
+  						<div class="col-md-4">
+  							<img id="dev_img" src="dev.svg">
+  						</div>
+  						<div class="col-md-4">
+  							<div class="row"> 
+  								<div class="col-md-12">
+  									 <div style="height: 140px">&nbsp;</div> 
+  								</div>
+  								<div class="col-md-12">
+  									 <div class="well_r" style="height: 40px">
+  									 	<img class="icons_r" src="thermometer.svg">
+  									 	<span id = "tkolonav"></span> &deg;С
+  									 </div> 
+  								</div>
+  								<div class="col-md-12">
+  									 <div style="height: 80px">&nbsp;</div> 
+  								</div>
+  								<div class="col-md-12">
+  									<div class="well_r" style="height: 40px">
+  										<img class="icons_r" src="thermometer.svg">
+  									 	<span id = "tkolonan"></span> &deg;С
+  									</div> 
+  								</div>
+  								<div class="col-md-12">
+  									 <div style="height: 30px">&nbsp;</div> 
+  								</div>
+  								<div class="col-md-12">
+  									<div class="well_r" style="height: 40px">
+  										<img class="icons_r" src="thermometer.svg">
+  										<span id = "tkub"></span> &deg;С
+  									</div> 
+  								</div>
+  							</div>
+  						</div>
+  						 
+  					</div>
+  				</div>
+  				<div class="col-md-6">
+  					<canvas id="tChart" width="400" height="300"></canvas>
+  					<canvas id="pChart" width="400" height="100"></canvas> 
+  					<!--<div class="well">Gauge</div>-->
+  				</div>
+  			</div>
+  		</div>
+	</div>
+	<div class="footer-bottom row" id="footer">
+  		<div class="col-md-12"><div class="well_l">Разработчик Левичев Д.С. &copy; <br><a href="/updform">Обновление прошивки WiFi модуля</a></div></div>
+	</div>
+</div>
+</body>
+</html>

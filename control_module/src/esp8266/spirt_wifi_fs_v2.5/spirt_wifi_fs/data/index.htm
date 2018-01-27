@@ -1,0 +1,216 @@
+<!DOCTYPE HTML>
+<html lang="ru">
+	<head><title>Green Snake</title>
+   		<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+   		<meta name="viewport" content="width=500"> 
+   		<link href="bootstrap.min.css" rel="stylesheet">
+   		<style type="text/css">
+			.well_l {
+				//background: rgb(200, 200, 200); 
+				text-align: center;
+				align-content: right;
+			}
+			.well_r {
+				//background: rgb(200, 200, 200); 
+				text-align: center;
+				align-content: left;
+			}
+
+      .well {
+        //background: rgb(200, 200, 200); 
+        text-align: left;
+        align-content: left;
+      }
+
+      .status {
+        //background: rgb(190, 190, 190);
+        text-align: right;
+        font-weight: bold;
+      }
+
+      .status_red {
+        //background: rgb(255, 0, 0);
+        text-align: right;
+        font-weight: bold;
+        color: rgb(255, 0, 0);
+      }
+			
+			body{
+				background-color: rgb(213, 213, 213);
+			}
+			img {
+  				vertical-align: top;
+			}
+			.gauge {
+        		display: block;
+        		float: right;
+        		align-content: center;
+    		}
+    		.icons_r {
+    			width: 32px;
+        		height: 32px;
+        		float:left;
+    		}
+    		.icons_l {
+    			width: 32px;
+        		height: 32px;
+        		float:right;
+    		}
+    		#press_g {
+        		width: 80%;
+        		height: 80%;
+    		}
+    		#power_g {
+        		width: 80%;
+        		height: 80%;
+    		}
+    		#water_g {
+    			width: 80%;
+        		height: 80%;
+    		}
+    		#dev_img {
+    			width:200;
+    			height:500;
+    		}
+            @media (max-width: 600px) {
+                #water_g,
+                #press_g,
+                #power_g {
+                    width: 100%; // 120%
+                    height: 100%; // 120%
+                    position: relative;
+                    left: 25%;
+                }
+                .well_r {
+                    background: rgb(213, 213, 213);
+                    width: 90%;
+                    margin-left: 10%;
+                }
+            }
+		</style>
+		<!--<script src="raphael-2.1.4.min.js"></script>-->
+   	<script src="justgage.min.js"></script>
+   	<script src="chart.min.js"></script>
+   	<script src="loader.js"></script>
+	</head>
+<body onload = "load()">
+<div class="container" id="wraper">
+	<div class="row" id="logo">
+  		<h1 style="text-align: center;">Зеленый змей</h1>
+	</div>
+	<div class="row" id="content">
+  		<div class="col-md-12">
+        <div class="row"> <!-- status -->
+          <div class="col-md-12">
+            <div style="text-align: center;"> 
+              <span class = "status" id = "mode_descr"> </span> <br> 
+                Время в работе: <span class = "status" id = "time"></span>&nbsp;
+                Статус системы: <span id = "status"></span> &nbsp; <span class="status" id = "t_elapse"></span>
+            </div>
+          </div>
+        </div>
+  			<div class="row"> <!-- content -->
+  				<div class="col-xs-12 col-sm-12 col-md-6 ">
+  					<div class="row"> <!-- Device-->
+  						<div class="col-xs-4 col-sm-4 col-md-4">
+  							<div class="row">  <!-- Left dashboard-->
+  								<div class="col-xs-12 col-sm-12 col-md-12">
+  									<div class="well_l" style="height: 40px">
+  									 	<span class="status" id = "t_oj"></span> &deg;С
+  									 	<img class="icons_l" src="thermometer.svg">
+  									</div> 
+  								</div>
+  								<div class="col-xs-12 col-sm-12 col-md-12">
+  									 <div id="water_g" class="gauge"></div> 
+  								</div>
+  								<div class="col-xs-12 col-sm-12 col-md-12">
+  									<div style="height: 160px; left: 25%; position: relative;">
+                      <br>Отбор:<br> 
+                      Скорость: <span class="status" id = "v_get"></span> мл/ч<br>
+                      Объем: <span class="status" id = "q_fact"></span> мл <br>
+                      Остановки: <span class="status" id = "stop_cnt"></span>
+                    </div>
+  								</div>
+  								
+  								<div class="col-xs-12 col-sm-12 col-md-12">
+  									 <div id="press_g" class="gauge"></div> 
+  								</div>
+  								<div class="col-xs-12 col-sm-12 col-md-12">
+  									 <div id="power_g" class="gauge"></div> 
+  								</div>
+  							</div>
+  							
+  						</div>
+  						<div class="col-xs-4 col-sm-4 col-md-4"> <!-- Device image -->
+  							<img id="dev_img" src="dev.svg">
+  						</div>
+  						<div class="col-xs-4 col-sm-4 col-md-4"> <!-- Right dashbord -->
+  							<div class="row"> 
+  								<div class="col-xs-12 col-sm-12 col-md-12">
+  									 <div style="height: 140px">&nbsp;</div> 
+  								</div>
+  								<div class="col-xs-12 col-sm-12 col-md-12">
+  									 <div class="well_r" style="height: 40px">
+  									 	<img class="icons_r" src="thermometer.svg">
+  									 	<span class="status" id = "t_kolv"></span> &deg;С
+  									 </div> 
+  								</div>
+  								<div class="col-xs-12 col-sm-12 col-md-12">
+  									 <div style="height: 80px">&nbsp;</div> 
+  								</div>
+  								<div class="col-xs-12 col-sm-12 col-md-12">
+  									<div class="well_r" style="height: 40px">
+  										<img class="icons_r" src="thermometer.svg">
+  									 	<span class="status" id = "t_koln"></span> &deg;С
+  									</div> 
+  								</div>
+  								<div class="col-xs-12 col-sm-12 col-md-12">
+  									 <div style="height: 30px">&nbsp;</div> 
+  								</div>
+  								<div class="col-xs-12 col-sm-12 col-md-12">
+  									<div class="well_r" style="height: 40px">
+  										<img class="icons_r" src="thermometer.svg">
+  										<span class="status" id = "t_kub"></span> &deg;С
+  									</div> 
+  								</div>
+  							</div>
+  						</div>
+  						 
+  					</div>
+            <div class="row"> <!-- Device footer -->
+                <div class="col-xs-12 col-sm-12 col-md-12">
+                  <table width = "100%">
+                    <tr><td>Температура силового <br>блока</td><td><span class="status" id = "t_pwr_mod_state"></span></td>
+                      <td>Насос системы охлаждения</td><td><span class="status" id = "pump_oj_state"></span></td></tr>
+
+                    <tr><td>Датчик температуры ОЖ</td><td><span class="status" id = "t_sen_oj_state"></span></td>
+                      <td>Вентилятор системы <br>охлаждения</td><td><span class="status" id = "fan_oj_state"></span></td></tr>
+
+                    <tr><td>Уровень ОЖ в баке</td><td><span  class="status" id = "l_sen_state"></span></td>
+                      <td>Концентрация паров <br>спирта</td><td><span class="status" id = "alcopdk"></span></td></tr>
+                  </table>
+                </div>
+            </div>
+  				</div>
+
+  				<div class="col-xs-12 col-sm-12 col-md-6"> <!-- Left side with chrts -->
+  					<canvas id="tChart" width="400" height="300"></canvas>
+  					<canvas id="pChart" width="400" height="100"></canvas>
+            <canvas id="pwrChart" width="400" height="100"></canvas> 
+  				</div>
+  			</div>
+  		</div>
+	</div>
+	<div class="footer-bottom row" id="footer">
+  		<div class="col-md-12">
+        <div class="well_l">
+          Разработчик Левичев Д.С. &copy;<br> 
+          control page ver. 2.0 <br> 
+          web server ver. <span id = "websrvver"></span><br>
+          <a href="/updform">Обновление прошивки WiFi модуля</a>
+      </div>
+      </div>
+	</div>
+</div>
+</body>
+</html>
