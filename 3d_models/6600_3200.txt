@@ -1,0 +1,13 @@
+﻿"Symbol";"Value";"Unit";
+"TraceParts.PartNumber";"10-01092008-079714";"";
+"REFERENCE";"6600.3200";"";
+"TraceParts.PartTitle";"Connectors 6600-3";"";
+"TraceParts.InstanceId";"10-01092008-079714CETN7RUKH2PGGBKA05CF0H3L1";"";
+"DESIGN";"IEC appliance outlet F, screw-on mounting, front side, Quick-connect 4.8mm x 0.8mm";"";
+"TraceParts.PartStatus";"Published";"";
+"TraceParts.PartStatusId";"";"";
+"SUPPLIER";"SCHURTER";"";
+"TraceParts.PartVersion";"1.0.7";"";
+"TRACEPARTS";"TRACEPARTS";"";
+"TraceParts.PartLanguage";"en";"";
+"TraceParts.ClassPath";"SCHURTER:/F_SCHURTER/SCHURTER.020/SCHURTER.020.020/10-01092008-079714";"";

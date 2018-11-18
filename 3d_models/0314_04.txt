@@ -1,0 +1,15 @@
+﻿"Symbol";"Value";"Unit";
+"REFERENCE";"0314 04";"";
+"poles";"4";"";
+"SUPPLIER";"LUMBERG";"";
+"TraceParts.PartStatus";"Published";"";
+"TraceParts.PartNumber";"10-10112014-103001";"";
+"TraceParts.PartLanguage";"en";"";
+"DESIGN";"Chassis plug acc. to IEC 61076-2-106, IP 68, with threaded joint and solder terminals, for front mounting - 0314 04";"";
+"TraceParts.InstanceId";"10-10112014-103001DOK71L3HOKZ357W9I71LO58LJ";"";
+"ue";"50";"";
+"TraceParts.PartTitle";"0314";"";
+"TraceParts.PartVersion";"1.0.7";"";
+"TRACEPARTS";"TRACEPARTS";"";
+"TraceParts.PartStatusId";"";"";
+"TraceParts.ClassPath";"LUMBERG:/F_LUMBERG/LUMBERG.020/10-10112014-103001";"";
