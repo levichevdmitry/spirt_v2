@@ -287,7 +287,7 @@ function setStatus(){
         document.getElementById("t_pwr_mod_state").innerText = "Перегрев";
         document.getElementById("t_pwr_mod_state").className = "status_red";
     } else {
-        document.getElementById("t_pwr_mod_state").innerText = "Нома";
+        document.getElementById("t_pwr_mod_state").innerText = "Норма";
         document.getElementById("t_pwr_mod_state").className = "status";
     }
     if (params.eta & 0x04) {
