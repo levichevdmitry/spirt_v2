@@ -1,0 +1,8 @@
+[ProjectGroup]
+Version=1.0
+[Project1]
+ProjectPath=LedBoard.PrjPCB
+[Project2]
+ProjectPath=ControlBoard.PrjPCB
+[Project3]
+ProjectPath=PowerBoard.PrjPCB

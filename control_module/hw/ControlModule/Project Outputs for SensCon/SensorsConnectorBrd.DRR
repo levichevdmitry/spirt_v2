@@ -1,0 +1,17 @@
+---------------------------------------------------------------------------
+NCDrill File Report For: SensorsConnectorBrd.PcbDoc   09.01.2017  11:49:40
+---------------------------------------------------------------------------
+
+Layer Pair : Top Layer to Bottom Layer
+ASCII RoundHoles File : SensorsConnectorBrd.TXT
+
+Tool         Hole Size           Hole Type     Hole Count Plated       Tool Travel
+---------------------------------------------------------------------------
+T1        43.3mil (1.09982mm)      Round          3                0.20 Inch (5.08 mm)
+T2        47.2mil (1.19888mm)      Round          25               5.37 Inch (136.47 mm)
+T3        47.2mil (1.19888mm)      Round          10        NPTH   3.06 Inch (77.75 mm)
+T4        118.1mil (2.99974mm)     Round          2         NPTH   2.32 Inch (59.00 mm)
+---------------------------------------------------------------------------
+Totals                                            40               10.96 Inch (278.30 mm)
+
+Total Processing Time (hh:mm:ss) : 00:00:00

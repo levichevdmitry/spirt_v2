@@ -1,0 +1,12 @@
+Output: NC Drill Files
+Type  : NC Drill
+From  : Project [DistribValveBoard.PrjPCB]
+   Generated File[DistribValveBrd.TXT]
+   Generated File[DistribValveBrd.LDP]
+   Generated File[DistribValveBrd.DRR]
+
+
+Files Generated   : 3
+Documents Printed : 0
+
+Finished Output Generation At 11:51:34 On 09.01.2017

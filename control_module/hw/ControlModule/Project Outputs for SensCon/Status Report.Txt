@@ -1,0 +1,18 @@
+Output: Gerber Files
+Type  : Gerber
+From  : Variant [[No Variations]] of Project [SensCon.PrjPCB]
+   Generated File[SensorsConnectorBrd.GTL]
+   Generated File[SensorsConnectorBrd.GBL]
+   Generated File[SensorsConnectorBrd.GTO]
+   Generated File[SensorsConnectorBrd.GTS]
+   Generated File[SensorsConnectorBrd.GBS]
+   Generated File[SensorsConnectorBrd.GM1]
+   Generated File[SensorsConnectorBrd.RUL]
+   Generated File[SensorsConnectorBrd.EXTREP]
+   Generated File[SensorsConnectorBrd.REP]
+
+
+Files Generated   : 9
+Documents Printed : 0
+
+Finished Output Generation At 19:42:34 On 10.01.2017

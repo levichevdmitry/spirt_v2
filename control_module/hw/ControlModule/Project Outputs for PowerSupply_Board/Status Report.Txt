@@ -1,0 +1,12 @@
+Output: NC Drill Files
+Type  : NC Drill
+From  : Project [PowerSupply_Board.PrjPCB]
+   Generated File[Control_PS_PCB.TXT]
+   Generated File[Control_PS_PCB.LDP]
+   Generated File[Control_PS_PCB.DRR]
+
+
+Files Generated   : 3
+Documents Printed : 0
+
+Finished Output Generation At 11:34:01 On 09.01.2017
